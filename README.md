@@ -16,12 +16,12 @@
     Получает объект JSON с двумя полями: email(строка) и password(строка). Если пользователя с указанным адресом электронной почты не существует, программа сохраняет (регистрирует) пользователя в базе данных и отправляет ответ 200 (Ok). Если пользователь уже находится в базе данных, отвечает 400 (Bad Request)кодом состояния. Оба поля необходимы и должны быть действительными : email должен содержать "@" и "." символы, password должен содержать не менее 8 символов. Они не должны быть пустыми. Если поля не соответствуют этим ограничениям, программа  отвечает 400 (Bad Request).
 <h4>    POST /api/recipe/new</h4>
     Добавляет новый рецепт. Получать рецепт, как объект JSON и возвращает объект JSON с одним id полем; Пример рецепта:
-    <code>
-    {
-   "name": "Fresh Mia Tea",
-   "category": "beverage",
-   "description": "Light, aromatic and refreshing beverage, ...",
-   "ingredients": ["boiled water", "honey", "fresh mint leaves"],
-   "directions": ["Boil water", "Pour boiling hot water into a mug", "Add fresh mint leaves", "Mix and let the mint leaves seep for 3-5 minutes", "Add honey and mix again"]
-}
-    </code>
+    <p><code>
+    {<Br>
+   "name": "Fresh Mia Tea",<Br>
+   "category": "beverage",<Br>
+   "description": "Light, aromatic and refreshing beverage, ...",<Br>
+   "ingredients": ["boiled water", "honey", "fresh mint leaves"],<Br>
+   "directions": ["Boil water", "Pour boiling hot water into a mug", "Add fresh mint leaves", "Mix and let the mint leaves seep for 3-5 minutes", "Add honey and mix again"]<Br>
+}<Br>
+    </code></p>
