@@ -4,6 +4,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import recipes.persistence.RecipeRepository;
+import recipes.securityUser.User;
+import recipes.securityUser.UserDetailsImpl;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,14 +19,20 @@ public class RecipeService
 	public RecipeService(RecipeRepository recipeRepository) {
 		this.recipeRepository = recipeRepository;}
 
-	public void deleteById(Integer id)
+	public void deleteByIdAndCheckDetails(Integer id, UserDetailsImpl details)
 	{
-		if (recipeRepository.existsById(id))
+		Recipe recipe = recipeRepository.findById(id).orElseThrow(() ->
+				new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+		if (details == null)
 		{
-			recipeRepository.deleteById(id);
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
 		}
-		else
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+		if (recipe.getUserId() != details.getId())
+		{
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+		}
+		recipeRepository.deleteById(id);
 	}
 
 	public Recipe  save(Recipe recipe)

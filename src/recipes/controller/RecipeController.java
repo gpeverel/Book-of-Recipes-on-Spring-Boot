@@ -3,10 +3,14 @@ package recipes.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import recipes.businesslayer.Recipe;
 import recipes.businesslayer.RecipeService;
+import recipes.securityUser.UserDetailsImpl;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
@@ -23,8 +27,15 @@ public class RecipeController
 
 	@PostMapping("/api/recipe/new")
 	@ResponseStatus(HttpStatus.OK)
-	public Map<String, Integer> post(@Validated @RequestBody Recipe recipe)
+	public Map<String, Integer> post(@AuthenticationPrincipal UserDetailsImpl details,
+			@Validated @RequestBody Recipe recipe)
 	{
+		System.out.println("Go recipe");
+		if (details == null)
+		{
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+		}
+		recipe.setUserId(details.getId());
 		recipe.setDate(LocalDateTime.now());
 		Recipe savedRecipe = recipeService.save(recipe);
 		return Map.of("id", savedRecipe.getId());
@@ -32,10 +43,14 @@ public class RecipeController
 
 	@PutMapping("/api/recipe/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public Map<String, Integer> updateRecipeById(@Validated @RequestBody Recipe newRecipe, @PathVariable int id)
+	public Map<String, Integer> updateRecipeById(@AuthenticationPrincipal UserDetailsImpl details,
+			@Validated @RequestBody Recipe newRecipe, @PathVariable int id)
 	{
 		Recipe updatedRecipe = recipeService.existsByIdAndUpdateByNewRecipe(id, newRecipe);
-
+		if ( details.getId() != updatedRecipe.getUserId())
+		{
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+		}
 		Recipe savedRecipe = recipeService.save(updatedRecipe);
 		return Map.of("id", savedRecipe.getId());
 	}
@@ -66,9 +81,10 @@ public class RecipeController
 
 	@DeleteMapping("/api/recipe/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void delete(@PathVariable int id)
+	public void delete(@AuthenticationPrincipal UserDetailsImpl details,
+	                   @PathVariable int id)
 	{
-		recipeService.deleteById(id);
+		recipeService.deleteByIdAndCheckDetails(id, details);
 	}
 
 
